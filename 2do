@@ -14,21 +14,27 @@ actions=""
 hints=""
 timeout=0       # No timeout, everything manually dismissed
 
-# Time to take a break, called by 2do.timer
+# Time to take a break, called by systemd/user/30min.timer
 if [ "$opt" = "--break" ]; then
     summary="Take a break!"
-    body="Rest your eyes for 10 minutes."
+    body="Rest your eyes for 5 minutes."
     icon="$iconpath""orange.gif"
 
-# Laptop battery getting low, called by lowbattery.timer
+# Time for daily tasks, called by systemd/user/2do.timer
+elif [ "$opt" = "--daily" ]; then
+    summary="Daily tasks!"
+    body="Keep that StackExchange streak."
+    icon="$iconpath""yellow.gif"
+
+# Laptop battery getting low, called by bin/lowbattery
 elif [ "$opt" = "--lowbattery" ]; then
     summary="Low battery!"
-    body="Battery at "$2"%, connect charger."
+    body="Battery at "$val"%, connect charger."
     icon="$iconpath""red.gif"
+
 fi
 
 dbus-send --session --dest="$dest" "$path" "$method" \
           string:"$app_name" uint32:$id string:"$icon" \
           string:"$summary" string:"$body" \
           array:string:"$actions" array:string:"$hints" int32:$timeout
-
