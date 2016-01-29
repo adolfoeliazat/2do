@@ -22,8 +22,9 @@ if [ "$opt" = "--break" ]; then
 
 # Time for daily tasks, called by systemd/user/2do.timer
 elif [ "$opt" = "--daily" ]; then
-    summary="Daily tasks!"
-    body="Keep that StackExchange streak."
+    summary="Keep that StackExchange streak!"
+    body="Automatically opening all tabs in 60 seconds.
+Terminate with 'killall python'."
     icon="$iconpath""yellow.gif"
 
 # Laptop battery getting low, called by bin/lowbattery
@@ -38,3 +39,7 @@ dbus-send --session --dest="$dest" "$path" "$method" \
           string:"$app_name" uint32:$id string:"$icon" \
           string:"$summary" string:"$body" \
           array:string:"$actions" array:string:"$hints" int32:$timeout
+
+if [ "$opt" = "--daily" ]; then
+    /home/eyqs/Dropbox/Projects/2do/web.py
+fi
