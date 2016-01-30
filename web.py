@@ -2,31 +2,38 @@
 from selenium import webdriver
 import time
 
-# Allow time to kill process with killall python
-time.sleep(60)
-options = webdriver.ChromeOptions()
-chromedriver = "/usr/bin/chromedriver"
-driver = webdriver.Chrome(chromedriver, chrome_options=options)
+# Sign into StackExchange sites by signing into Gmail
+def login():
+    driver.find_element_by_xpath(
+        "//span[@class='topbar-menu-links']/a[2]").click()
+    driver.find_element_by_xpath("//div[@data-provider='google']").click()
+    username = driver.find_element_by_name('Email')
+    username.send_keys(user)
+    driver.implicitly_wait(10)  # Wait for password box to show up
+    password = driver.find_element_by_name('Passwd')
+    password.send_keys(pswd)
 
-# Sign into StackExchange by signing into Gmail
-driver.get("https://stackoverflow.com/users/login")
-driver.find_element_by_xpath("//div[@data-provider='google']").click()
-username = driver.find_element_by_name('Email')
-username.send_keys('eugeneyqshen@gmail.com')
-driver.find_element_by_name('signIn').click()
-driver.implicitly_wait(10)  # Wait for password box to show up
-password = driver.find_element_by_name('Passwd')
-password.send_keys('password')
-driver.find_element_by_id('signIn').click() # ID but idk why
+# Allow time to kill process with killall python
+#time.sleep(300)
+driver = webdriver.Chrome('/usr/bin/chromedriver')
+with open('/home/eyqs/.password', 'r') as f:
+    for line in f.readlines():
+        if line.split('; ')[0] == 'Gmail':
+            user = line.split('; ')[1] + '\n'   # Has newline so no need
+            pswd = line.split('; ')[2]          # to click sign in button
 
 # Open up all StackExchange sites to get Fanatic badge
-driver.get("http://stackoverflow.com/questions/11227809/")
-driver.get("http://math.stackexchange.com/questions/71874/")
-driver.get("http://physics.stackexchange.com/questions/5265/")
-driver.get("http://music.stackexchange.com/questions/3/")
-driver.get("http://superuser.com/questions/792607/")
-driver.get("http://tex.stackexchange.com/questions/94889/")
-driver.get("http://unix.stackexchange.com/questions/34196/")
-driver.get("http://vi.stackexchange.com/questions/84/")
-
+urls = ["http://stackoverflow.com/questions/11227809/",
+        "http://math.stackexchange.com/questions/71874/",
+        "http://physics.stackexchange.com/questions/5265/",
+        "http://music.stackexchange.com/questions/3/",
+        "http://superuser.com/questions/792607/",
+        "http://tex.stackexchange.com/questions/94889/",
+        "http://unix.stackexchange.com/questions/34196/",
+        "http://vi.stackexchange.com/questions/84/"]
+driver.get(urls[0])
+login()             # Can run login after getting any urls
+time.sleep(10)      # Wait for server to catch up to logins or something
+for url in urls:
+    driver.get(url)
 driver.close()

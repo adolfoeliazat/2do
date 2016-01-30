@@ -23,7 +23,7 @@ if [ "$opt" = "--break" ]; then
 # Time for daily tasks, called by systemd/user/2do.timer
 elif [ "$opt" = "--daily" ]; then
     summary="Keep that StackExchange streak!"
-    body="Automatically opening all tabs in 60 seconds.
+    body="Automatically opening all tabs in 300 seconds.
 Terminate with 'killall python'."
     icon="$iconpath""yellow.gif"
 
