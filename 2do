@@ -14,18 +14,19 @@ actions=""
 hints=""
 timeout=0       # No timeout, everything manually dismissed
 
-# Time to take a break, called by systemd/user/30min.timer
-if [ "$opt" = "--break" ]; then
-    summary="Take a break!"
-    body="Rest your eyes for 5 minutes."
-    icon="$iconpath""orange.gif"
-
 # Time for daily tasks, called by systemd/user/2do.timer
-elif [ "$opt" = "--daily" ]; then
+if [ "$opt" = "--daily" ]; then
+    sleep 30        # Allow time for X server to open
     summary="Keep that StackExchange streak!"
     body="Automatically opening all tabs in 300 seconds.
 Terminate with 'killall python'."
     icon="$iconpath""yellow.gif"
+
+# Time to take a break, called by systemd/user/30min.timer
+elif [ "$opt" = "--break" ]; then
+    summary="Take a break!"
+    body="Rest your eyes for 5 minutes."
+    icon="$iconpath""orange.gif"
 
 # Laptop battery getting low, called by bin/lowbattery
 elif [ "$opt" = "--lowbattery" ]; then

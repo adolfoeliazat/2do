@@ -14,7 +14,7 @@ def login():
     password.send_keys(pswd)
 
 # Allow time to kill process with killall python
-#time.sleep(300)
+time.sleep(300)
 driver = webdriver.Chrome('/usr/bin/chromedriver')
 with open('/home/eyqs/.password', 'r') as f:
     for line in f.readlines():
