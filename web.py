@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from selenium import webdriver
+import sys
 import time
 
 # Sign into StackExchange sites by signing into Gmail
@@ -14,7 +15,10 @@ def login():
     password.send_keys(pswd)
 
 # Allow time to kill process with killall python
-time.sleep(300)
+if '-s' in sys.argv:
+    time.sleep(300)
+
+# Sign into StackExchange by logging into Gmail
 driver = webdriver.Chrome('/usr/bin/chromedriver')
 with open('/home/eyqs/.password', 'r') as f:
     for line in f.readlines():
