@@ -21,13 +21,14 @@ hints = ''
 timeout = '0'       # No timeout, everything manually dismissed
 
 # Tasks to do: (period in seconds, priority, task name)
-tasks = [(86400, 1, 'daily'), (30, 2, 'lowbattery'),
-         (1800, 3, 'break')]
+tasks = [(86400, 1, 'daily'), (60, 2, 'lowbattery'),
+         (1800, 3, 'break'), (600, 4, 'fehbg')]
 scheduler = sched.scheduler()
 
 
 # Do a periodic task
 def call(interval, priority, task):
+    global BSUSPEND
     # Reschedule the task
     scheduler.enter(interval, priority,
                     lambda i=interval, p=priority, a=task: call(i,p,a))
@@ -44,6 +45,11 @@ def call(interval, priority, task):
         summary = 'Take a break!'
         body = 'Rest your eyes for 5 minutes.'
         icon = iconpath + 'orange.gif'
+    # Time to switch wallpapers
+    elif task == 'fehbg':
+        summary = 'New wallpaper!'
+        body = "You don't need a notification to notice it..."
+        icon = iconpath + 'magenta.gif'
     # Time to check the battery level
     elif task == 'lowbattery':
         status = subprocess.Popen(['acpi'],
@@ -58,7 +64,7 @@ def call(interval, priority, task):
             subprocess.call(['systemctl', 'suspend'])
             BSUSPEND = False
         summary = 'Low battery!'
-        body = 'Battery at ' + amount + '%, connect charger.'
+        body = 'Battery at ' + str(amount) + '%, connect charger.'
         icon = iconpath + 'red.gif'
     else:
         summary = 'Unrecognized!'
@@ -75,6 +81,9 @@ def call(interval, priority, task):
     if task == 'daily':
         scheduler.enter(OPENTIME, 1, lambda a=['python',
             '/home/eyqs/Dropbox/Projects/2do/web.py']: subprocess.Popen(a))
+    elif task == 'fehbg':   # Must use shell to have asterisk wildcard
+        subprocess.Popen('feh --bg-fill --randomize --no-fehbg /home/eyqs/' +
+            '.config/awesome/2016solarized/wallpapers/*', shell=True)
 
 
 if __name__ == '__main__':
