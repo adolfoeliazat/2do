@@ -7,6 +7,7 @@ import sched
 import subprocess
 OPENTIME = 30   # Time to wait for X Server to open
 STOPTIME = 300  # Time to wait for user to stop 2do
+BSUSPEND = True # Suspend when battery less than 5%
 
 # Keep dbus-send constants
 dest = 'org.freedesktop.Notifications'
@@ -19,44 +20,45 @@ actions = ''
 hints = ''
 timeout = '0'       # No timeout, everything manually dismissed
 
-# Tasks to do: (period in seconds, priority, extra arguments)
-tasks = [(16, 1, '--daily'), (17, 2, '--lowbattery', '5'), (14, 3, '--break')]
+# Tasks to do: (period in seconds, priority, task name)
+tasks = [(86400, 1, 'daily'), (30, 2, 'lowbattery'),
+         (1800, 3, 'break')]
 scheduler = sched.scheduler()
 
 
-# Do a task
-def call(interval, priority, *arguments):
-    # Parse extra arguments
-    opt = ''
-    val = ''
-    if len(arguments) > 0:
-        opt = arguments[0]
-        if len(arguments) > 1:
-            val = arguments[1]
+# Do a periodic task
+def call(interval, priority, task):
+    # Reschedule the task
+    scheduler.enter(interval, priority,
+                    lambda i=interval, p=priority, a=task: call(i,p,a))
 
-    # Choose the right messages depending on opt
-    # No opt, that's very bad
-    if not opt:
-        summary = 'Error!'
-        body = 'You called 2do with no arguments. Stop it.'
-        icon = iconpath + 'red.gif'
-    # Time for daily tasks, called by systemd/user/2do.timer
-    elif opt == '--daily':
+    # Choose the right messages depending on task
+    # Time for daily tasks
+    if task == 'daily':
         summary = 'Keep that StackExchange streak!'
         body = 'Automatically opening all tabs in ' + str(STOPTIME) + \
                ' seconds.\nTerminate with `killall python`.'
         icon = iconpath + 'yellow.gif'
-    # Time to take a break, called by systemd/user/30min.timer
-    elif opt == '--break':
+    # Time to take a break
+    elif task == 'break':
         summary = 'Take a break!'
         body = 'Rest your eyes for 5 minutes.'
         icon = iconpath + 'orange.gif'
-    # Laptop battery getting low, called by bin/lowbattery
-    elif opt == '--lowbattery':
+    # Time to check the battery level
+    elif task == 'lowbattery':
+        status = subprocess.Popen(['acpi'],
+            stdout=subprocess.PIPE).communicate()[0].decode('UTF-8').split()
+        # ['Battery', '0:', 'Discharging,', '13%,']
+        if status[2] != 'Discharging,':
+            return
+        amount = int(status[3][:-2])
+        if amount > 20:
+            return
+        if amount < 5 and BSUSPEND:
+            subprocess.call(['systemctl', 'suspend'])
+            BSUSPEND = False
         summary = 'Low battery!'
-        body = 'Battery at ' + val + '%, connect charger.'
-        if not val:
-            body = 'Battery is probably low, connect charger.'
+        body = 'Battery at ' + amount + '%, connect charger.'
         icon = iconpath + 'red.gif'
     else:
         summary = 'Unrecognized!'
@@ -70,18 +72,14 @@ def call(interval, priority, *arguments):
                      'array:string:' + hints, 'int32:' + timeout])
 
     # Do extra stuff
-    if opt == '--daily':
+    if task == 'daily':
         scheduler.enter(OPENTIME, 1, lambda a=['python',
-            'home/eyqs/Dropbox/Projects/2do/web.py']: subprocess.Popen(a))
-
-    # Reschedule the task
-    scheduler.enter(interval, priority,
-                    lambda i=interval, p=priority, a=arguments: call(i,p,*a))
+            '/home/eyqs/Dropbox/Projects/2do/web.py']: subprocess.Popen(a))
 
 
 if __name__ == '__main__':
-    time.sleep(OPENTIME)
+#    time.sleep(OPENTIME)
     for task in tasks:
         scheduler.enter(task[0], task[1],
-                        lambda i=task[0], p=task[1], a=task[2:]: call(i,p,*a))
+                        lambda i=task[0], p=task[1], a=task[2]: call(i,p,a))
     scheduler.run()
