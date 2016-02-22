@@ -80,7 +80,7 @@ if opt == '--daily' or opt == '--stack':
             "http://vi.stackexchange.com/questions/84/"]
 
     # Allow time to kill process with killall python
-    if opt == 'daily':
+    if opt == '--daily':
         time.sleep(300)
 
     # Get Gmail password from password file
