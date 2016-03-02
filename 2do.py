@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # Manage various desktop notifications of periodic tasks
 
-from selenium import webdriver
 import time
 import sched
+import datetime
 import subprocess
+DATAFILE = '.2do.dat'
 OPENTIME = 30   # Time to wait for X Server to open
 STOPTIME = 300  # Time to wait for user to stop 2do
 BSUSPEND = True # Suspend when battery less than 5%
@@ -20,38 +21,47 @@ actions = ''
 hints = ''
 timeout = '0'       # No timeout, everything manually dismissed
 
-# Tasks to do: (period in seconds, priority, task name)
-tasks = [(86400, 1, 'daily'), (60, 2, 'lowbattery'),
-         (1800, 3, 'break'), (600, 4, 'fehbg')]
+# Tasks to do: (interval, priority, task, call on startup, call daily)
+tasks = [(14400, 1, 'daily', False, True), (60, 2, 'lowbattery', True, False),
+         (1800, 3, 'break', False, False), (600, 4, 'fehbg', True, False)]
 scheduler = sched.scheduler()
 
 
-# Do a periodic task
-def call(interval, priority, task):
-    global BSUSPEND
-    # Reschedule the task
+# Schedule a periodic task
+def schedule(interval, priority, task):
     scheduler.enter(interval, priority,
-                    lambda i=interval, p=priority, a=task: call(i,p,a))
+                    lambda i=interval, p=priority, a=task: schedule(i,p,a))
+    call(task)
+    notify(task)
 
-    # Choose the right messages depending on task
-    # Time for daily tasks
+
+# Do a task
+def call(task):
+    if task == 'daily':
+        scheduler.enter(STOPTIME, 1, lambda a=['python',
+            '/home/eyqs/Dropbox/Projects/2do/web.py']: subprocess.Popen(a))
+    elif task == 'fehbg':   # Must use shell to have asterisk wildcard
+        subprocess.Popen('feh --bg-fill --randomize --no-fehbg /home/eyqs/' +
+            '.config/awesome/2016solarized/wallpapers/*', shell=True)
+
+
+# Display the right notifications
+def notify(task):
     if task == 'daily':
         summary = 'Keep that StackExchange streak!'
         body = 'Automatically opening all tabs in ' + str(STOPTIME) + \
                ' seconds.\nTerminate with `killall python`.'
         icon = iconpath + 'yellow.gif'
-    # Time to take a break
     elif task == 'break':
         summary = 'Take a break!'
         body = 'Rest your eyes for 5 minutes.'
         icon = iconpath + 'orange.gif'
-    # Time to switch wallpapers
     elif task == 'fehbg':
         summary = 'New wallpaper!'
         body = "You don't need a notification to notice it..."
         icon = iconpath + 'magenta.gif'
-    # Time to check the battery level
     elif task == 'lowbattery':
+        global BSUSPEND
         status = subprocess.Popen(['acpi'],
             stdout=subprocess.PIPE).communicate()[0].decode('UTF-8').split()
         # ['Battery', '0:', 'Discharging,', '13%,']
@@ -71,24 +81,28 @@ def call(interval, priority, task):
         body = 'You called 2do with an unrecognized argument.'
         icon = iconpath + 'red.gif'
 
-    # Send the message
     subprocess.call(['dbus-send', '--session', '--dest=' + dest, path, method,
                      'string:' + app_name, 'uint32:' + pid, 'string:' + icon,
                      'string:'+summary,'string:'+body,'array:string:'+actions,
                      'array:string:' + hints, 'int32:' + timeout])
 
-    # Do extra stuff
-    if task == 'daily':
-        scheduler.enter(OPENTIME, 1, lambda a=['python',
-            '/home/eyqs/Dropbox/Projects/2do/web.py']: subprocess.Popen(a))
-    elif task == 'fehbg':   # Must use shell to have asterisk wildcard
-        subprocess.Popen('feh --bg-fill --randomize --no-fehbg /home/eyqs/' +
-            '.config/awesome/2016solarized/wallpapers/*', shell=True)
-
 
 if __name__ == '__main__':
-#    time.sleep(OPENTIME)
+    # Make sure that DATAFILE exists
+    try:
+        f = open(DATAFILE, 'r')
+        f.close()
+    except:
+        f = open(DATAFILE, 'w')
+        f.close()
+
+    # Call some tasks immediately without notifying
     for task in tasks:
-        scheduler.enter(task[0], task[1],
-                        lambda i=task[0], p=task[1], a=task[2]: call(i,p,a))
+        if task[3]:
+            call(task[2])
+
+    # Schedule all tasks periodically
+    for task in tasks:
+        scheduler.enter(task[0], task[1], lambda
+                        i=task[0], p=task[1], a=task[2]: schedule(i,p,a))
     scheduler.run()

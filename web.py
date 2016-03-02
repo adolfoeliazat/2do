@@ -4,7 +4,7 @@
 import time
 from selenium import webdriver
 
-def drive():
+if __name__ == '__main__':
     urls = ["http://stackoverflow.com/questions/11227809/",
             "http://math.stackexchange.com/questions/71874/",
             "http://physics.stackexchange.com/questions/5265/",
@@ -38,6 +38,3 @@ def drive():
     for url in urls:
         driver.get(url)
     driver.close()
-
-if __name__ == '__main__':
-    drive()
