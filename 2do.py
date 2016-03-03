@@ -21,9 +21,9 @@ actions = ''
 hints = ''
 timeout = '0'       # No timeout, everything manually dismissed
 
-# Tasks to do: (interval, priority, task, call on startup, call daily)
-tasks = [(14400, 1, 'daily', False, True), (60, 2, 'lowbattery', True, False),
-         (1800, 3, 'break', False, False), (600, 4, 'fehbg', True, False)]
+# Tasks to do: (period in seconds, priority, task name, call on startup)
+tasks = [(14400, 1, 'daily', True), (60, 2, 'lowbattery', True),
+         (1800, 3, 'break', False), (600, 4, 'fehbg', True)]
 scheduler = sched.scheduler()
 
 
@@ -37,9 +37,18 @@ def schedule(interval, priority, task):
 
 # Do a task
 def call(task):
-    if task == 'daily':
-        scheduler.enter(STOPTIME, 1, lambda a=['python',
-            '/home/eyqs/Dropbox/Projects/2do/web.py']: subprocess.Popen(a))
+    if task == 'daily':     # Only run it if not already run today
+        today = str(datetime.date.today())
+        with open(DATAFILE, 'r+') as f:
+            for line in f:
+                if today in line:
+                    break
+            else:           # Wait for STOPTIME, then mark today as run
+                scheduler.enter(STOPTIME, 1, lambda a=['python',
+                                '/home/eyqs/Dropbox/Projects/2do/web.py']:
+                                subprocess.Popen(a))
+                scheduler.enter(STOPTIME, 1, lambda t=today, f=f:
+                                f.write(t + '\n'))
     elif task == 'fehbg':   # Must use shell to have asterisk wildcard
         subprocess.Popen('feh --bg-fill --randomize --no-fehbg /home/eyqs/' +
             '.config/awesome/2016solarized/wallpapers/*', shell=True)
@@ -96,10 +105,11 @@ if __name__ == '__main__':
         f = open(DATAFILE, 'w')
         f.close()
 
-    # Call some tasks immediately without notifying
+    # Call some tasks immediately
     for task in tasks:
         if task[3]:
             call(task[2])
+            notify(task[2])
 
     # Schedule all tasks periodically
     for task in tasks:
