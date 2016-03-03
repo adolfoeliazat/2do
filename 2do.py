@@ -1,18 +1,9 @@
 #!/usr/bin/env python
 # Manage various desktop notifications of periodic tasks
 
-import sys
 import sched
 import datetime
 import subprocess
-
-# Import Python Gobject introspection stuff
-import gi
-gi.require_version('Gtk', '3.0')
-gi.require_version('AppIndicator3', '0.1')
-from gi.repository import Gtk as gtk
-from gi.repository import AppIndicator3 as indicator
-
 DATAFILE = '.2do.dat'
 OPENTIME = 30   # Time to wait for X Server to open
 STOPTIME = 300  # Time to wait for user to stop 2do
@@ -108,25 +99,11 @@ def notify(task):
                      'string:'+summary,'string:'+body,'array:string:'+actions,
                      'array:string:' + hints, 'int32:' + timeout])
 
-def quit(item):
-    gtk.main_quit()
-    sys.exit()
-
 
 if __name__ == '__main__':
     # Create the application indicator
-    # From http://candidtim.github.io/appindicator/2014/09/13/
-    #             ubuntu-appindicator-step-by-step.html
-    app = indicator.Indicator.new('2do_indicator', 'whatever',
-                                  indicator.IndicatorCategory.SYSTEM_SERVICES)
-    app.set_status(indicator.IndicatorStatus.ACTIVE)
-    menu = gtk.Menu()
-    quitItem = gtk.MenuItem('Quit')
-    menu.append(quitItem)
-    quitItem.show()
-    quitItem.connect('activate', quit)
-    app.set_menu(menu)
-    gtk.main()
+    ap = subprocess.Popen(['python','/home/eyqs/Dropbox/Projects/2do/app.py'],
+                          stdout=subprocess.PIPE)
 
     # Make sure that DATAFILE exists
     try:
