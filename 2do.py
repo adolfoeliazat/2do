@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Manage various desktop notifications of periodic tasks
 
+import os
 import sched
 import datetime
 import subprocess
@@ -36,12 +37,7 @@ def write(text):
 def schedule(interval, priority, task):
     scheduler.enter(interval, priority,
                     lambda i=interval, p=priority, a=task: schedule(i,p,a))
-    call(task)
-    notify(task)
 
-
-# Do a task
-def call(task):
     if task == 'daily':     # Only run it if not already run today
         today = str(datetime.date.today())
         with open(DATAFILE, 'r') as f:
@@ -49,10 +45,18 @@ def call(task):
                 if today in line:
                     break
             else:           # Wait for STOPTIME, then mark today as run
-                scheduler.enter(STOPTIME, 1, lambda a=['python',
-                                '/home/eyqs/Dropbox/Projects/2do/web.py']:
-                                subprocess.Popen(a))
+                scheduler.enter(STOPTIME, 1, lambda t=task: call(t))
+                scheduler.enter(STOPTIME, 1, lambda t=task: notify(t))
                 scheduler.enter(STOPTIME, 1, lambda t=today: write(t))
+    else:                   # Always run everything else periodically
+        call(task)
+        notify(task)
+
+
+# Do a task
+def call(task):
+    if task == 'daily':
+        subprocess.Popen(['python', '/home/eyqs/Dropbox/Projects/2do/web.py'])
     elif task == 'fehbg':   # Must use shell to have asterisk wildcard
         subprocess.Popen('feh --bg-fill --randomize --no-fehbg /home/eyqs/' +
             '.config/awesome/2016solarized/wallpapers/*', shell=True)
@@ -102,8 +106,8 @@ def notify(task):
 
 if __name__ == '__main__':
     # Create the application indicator
-    ap = subprocess.Popen(['python','/home/eyqs/Dropbox/Projects/2do/app.py'],
-                          stdout=subprocess.PIPE)
+    ap = subprocess.Popen(['python', '/home/eyqs/Dropbox/Projects/2do/app.py',
+                          str(os.getpid())])
 
     # Make sure that DATAFILE exists
     try:
@@ -116,8 +120,7 @@ if __name__ == '__main__':
     # Call some tasks immediately
     for task in tasks:
         if task[3]:
-            call(task[2])
-            notify(task[2])
+            schedule(task[0], task[1], task[2])
 
     # Schedule all tasks periodically
     for task in tasks:

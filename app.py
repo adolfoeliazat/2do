@@ -2,7 +2,9 @@
 # Manage various desktop notifications of periodic tasks
 # Split in order to run gtk.main() and scheduler.run() simultaneously
 
+import signal
 import sys
+import os
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
@@ -11,6 +13,7 @@ from gi.repository import AppIndicator3 as indicator
 
 def quit(item):
     gtk.main_quit()
+    os.kill(pid, signal.SIGKILL)
     sys.exit()
 
 def make_menus():
@@ -25,6 +28,7 @@ def make_menus():
     return menu
 
 if __name__ == '__main__':
+    pid = int(sys.argv[1])
     ap = indicator.Indicator.new('2do_indicator',
                                  '/home/eyqs/Dropbox/Projects/2do/orange.gif',
                                  indicator.IndicatorCategory.SYSTEM_SERVICES)
