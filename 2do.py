@@ -2,6 +2,7 @@
 # Manage various desktop notifications of periodic tasks
 
 import os
+import time
 import sched
 import subprocess
 DATAFILE = '.2do.dat'
@@ -34,7 +35,7 @@ def schedule(interval, priority, task):
     if task == 'daily':
         daycheck = subprocess.Popen([
             'python', '/home/eyqs/Dropbox/Projects/2do/day.py',
-            DATAFILE, str(STOPTIME)], stdout=subprocess.PIPE)
+            DATAFILE, str(STOPTIME), times('daily')], stdout=subprocess.PIPE)
         # If daycheck prints '0', then call and notify
         if daycheck.stdout.readline() == b'0\n':
             notify(task)    # Wait for STOPTIME to allow user to kill day.py
@@ -42,6 +43,14 @@ def schedule(interval, priority, task):
     else:
         notify(task)
         call(task)
+
+
+# Get the time after which to run a timer task
+def times(task):
+    currtime = time.time()
+    if task == 'daily':
+        calltime = currtime - currtime % 86400
+    return str(calltime)
 
 
 # Do a task

@@ -4,17 +4,16 @@
 
 import sys
 import time
-import datetime
 
 if __name__ == '__main__':
-    datafile = sys.argv[1]
-    stoptime = int(sys.argv[2])
-    today = str(datetime.date.today())
+    datafile = sys.argv[1]          # File has the call times
+    stoptime = int(sys.argv[2])     # Time to stop the script
+    calltime = float(sys.argv[3])   # Call it after this time
 
     flag = 0    # Print '0' to make 2do call and notify
     with open(datafile, 'r') as f:
         for line in f:
-            if today in line:
+            if float(line.strip()) > calltime:
                 flag = 1
     print(flag)
     sys.stdout.flush()
@@ -22,4 +21,4 @@ if __name__ == '__main__':
     if flag == 0:   # Only write to file after 2do calls
         time.sleep(stoptime)
         with open(datafile, 'a') as f:
-            f.write(today + '\n')
+            f.write(str(time.time()) + '\n')
