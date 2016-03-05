@@ -3,7 +3,6 @@
 
 import os
 import sched
-import datetime
 import subprocess
 DATAFILE = '.2do.dat'
 OPENTIME = 30   # Time to wait for X Server to open
@@ -27,30 +26,22 @@ tasks = [(14400, 1, 'daily', True), (60, 2, 'lowbattery', True),
 scheduler = sched.scheduler()
 
 
-# Write to data file
-def write(text):
-    with open(DATAFILE, 'a') as f:
-        f.write(text + '\n')
-
-
 # Schedule a periodic task
 def schedule(interval, priority, task):
     scheduler.enter(interval, priority,
                     lambda i=interval, p=priority, a=task: schedule(i,p,a))
-
-    if task == 'daily':     # Only run it if not already run today
-        today = str(datetime.date.today())
-        with open(DATAFILE, 'r') as f:
-            for line in f:
-                if today in line:
-                    break
-            else:           # Wait for STOPTIME, then mark today as run
-                scheduler.enter(STOPTIME, 1, lambda t=task: call(t))
-                scheduler.enter(STOPTIME, 1, lambda t=task: notify(t))
-                scheduler.enter(STOPTIME, 1, lambda t=today: write(t))
-    else:                   # Always run everything else periodically
-        call(task)
+    # Check if task was already completed for today
+    if task == 'daily':
+        daycheck = subprocess.Popen([
+            'python', '/home/eyqs/Dropbox/Projects/2do/day.py',
+            DATAFILE, str(STOPTIME)], stdout=subprocess.PIPE)
+        # If daycheck prints '0', then call and notify
+        if daycheck.stdout.readline() == b'0\n':
+            notify(task)    # Wait for STOPTIME to allow user to kill day.py
+            scheduler.enter(STOPTIME, 1, lambda t=task: call(t))
+    else:
         notify(task)
+        call(task)
 
 
 # Do a task
@@ -67,7 +58,7 @@ def notify(task):
     if task == 'daily':
         summary = 'Keep that StackExchange streak!'
         body = 'Automatically opening all tabs in ' + str(STOPTIME) + \
-               ' seconds.\nTerminate with `killall python`.'
+               ' seconds.\nTerminate with by killing day.py.'
         icon = iconpath + 'yellow.gif'
     elif task == 'break':
         summary = 'Take a break!'
@@ -106,8 +97,8 @@ def notify(task):
 
 if __name__ == '__main__':
     # Create the application indicator
-    ap = subprocess.Popen(['python', '/home/eyqs/Dropbox/Projects/2do/app.py',
-                          str(os.getpid())])
+    subprocess.Popen(['python', '/home/eyqs/Dropbox/Projects/2do/app.py',
+                      str(os.getpid())])
 
     # Make sure that DATAFILE exists
     try:
@@ -117,13 +108,12 @@ if __name__ == '__main__':
         f = open(DATAFILE, 'w')
         f.close()
 
-    # Call some tasks immediately
+    # Call some tasks immediately and others periodically
     for task in tasks:
         if task[3]:
-            schedule(task[0], task[1], task[2])
-
-    # Schedule all tasks periodically
-    for task in tasks:
-        scheduler.enter(task[0], task[1], lambda
+            delay = OPENTIME
+        else:
+            delay = task[0]
+        scheduler.enter(delay, task[1], lambda
                         i=task[0], p=task[1], a=task[2]: schedule(i,p,a))
     scheduler.run()
