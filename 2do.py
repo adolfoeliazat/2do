@@ -22,8 +22,8 @@ hints = ''
 timeout = '0'       # No timeout, everything manually dismissed
 
 # Tasks to do: (period in seconds, priority, task name, call on startup)
-tasks = [(14400, 1, 'daily', True), (60, 2, 'lowbattery', True),
-         (1800, 3, 'break', False), (600, 4, 'fehbg', True)]
+tasks = [(14400, 1, 'daily', 'Wait'), (60, 2, 'lowbattery', 'Yes'),
+         (1800, 3, 'break', 'No'), (600, 4, 'fehbg', 'Yes')]
 scheduler = sched.scheduler()
 
 
@@ -39,10 +39,17 @@ def schedule(interval, priority, task):
         # If daycheck prints '0', then call and notify
         if daycheck.stdout.readline() == b'0\n':
             notify(task)    # Wait for STOPTIME to allow user to kill day.py
-            scheduler.enter(STOPTIME, 1, lambda t=task: call(t))
+            scheduler.enter(STOPTIME, 1,
+                            lambda p=daycheck, t=task: stillalive(p,t))
     else:
         notify(task)
         call(task)
+
+
+# Check if user killed day.py or not
+def stillalive(proc, task):
+    if not daycheck.poll(): # If day.py has not been killed
+        call(task)          # Then call the task
 
 
 # Get the time after which to run a timer task
@@ -119,9 +126,11 @@ if __name__ == '__main__':
 
     # Call some tasks immediately and others periodically
     for task in tasks:
-        if task[3]:
+        if task[3] == 'Yes':
+            delay = 0
+        elif task[3] == 'Wait':
             delay = OPENTIME
-        else:
+        elif task[3] == 'No':
             delay = task[0]
         scheduler.enter(delay, task[1], lambda
                         i=task[0], p=task[1], a=task[2]: schedule(i,p,a))
