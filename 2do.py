@@ -22,7 +22,7 @@ hints = ''
 timeout = '0'       # No timeout, everything manually dismissed
 
 # Tasks to do: (period in seconds, priority, task name, call on startup)
-tasks = [(14400, 1, 'daily', 'Wait'), (60, 2, 'lowbattery', 'Yes'),
+tasks = [(10800, 1, 'daily', 'Wait'), (60, 2, 'lowbattery', 'Yes'),
          (1800, 3, 'break', 'No'), (600, 4, 'fehbg', 'Yes')]
 scheduler = sched.scheduler()
 
@@ -48,7 +48,7 @@ def schedule(interval, priority, task):
 
 # Check if user killed day.py or not
 def stillalive(proc, task):
-    if not daycheck.poll(): # If day.py has not been killed
+    if not proc.poll():     # If day.py has not been killed
         call(task)          # Then call the task
 
 
