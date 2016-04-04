@@ -43,21 +43,19 @@ def parse():
 def schedule(interval, priority, task):
     scheduler.enter(interval, priority, lambda
                     i=interval, p=priority, t=task: schedule(i,p,t))
-    if task['execute']:             # Call the task
-        if task['calliftrue']:      # Only call the task if stdout is '0'
-            check = subprocess.Popen(task['calliftrue'].split(','),
-                                     stdout=subprocess.PIPE)
-            if check.stdout.readline() != b'0\n':
-                return
-            if task['stoptime']:    # Wait for stoptime to allow user to stop
-                scheduler.enter(int(task['stoptime']), 1,
-                    lambda c=check, t=task: stillalive(c,t))
-                notify(task)
-                return
+    if task['calliftrue']:      # Only call the task if stdout is '0'
+        check = subprocess.Popen(task['calliftrue'].split(','),
+                                 stdout=subprocess.PIPE)
+        if check.stdout.readline() != b'0\n':
+            return
+        if task['stoptime']:    # Wait for stoptime to allow user to stop
+            scheduler.enter(int(task['stoptime']), 1,
+                lambda c=check, t=task: stillalive(c,t))
+            notify(task)
+            return
+    if task['execute']:         # Call the task
         call(task)
-        notify(task)
-    else:
-        notify(task)
+    notify(task)                # Notify the task
 
 # If user did not kill the checking script, call the task
 def stillalive(check, task):

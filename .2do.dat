@@ -10,14 +10,14 @@ calliftrue: python,/home/eyqs/Dropbox/Projects/2do/day.py,300
 callonstart:Wait
 
 summary:    Low battery!
-body:       Battery below 15%, connect charger.
+body:       Battery below 20%, connect charger.
 icon:       /home/eyqs/Dropbox/Projects/2do/red.gif
 timeout:    10000
-execute:    systemctl,suspend
-interval:   240
+execute:
+interval:   120
 priority:   2
 stoptime:
-calliftrue: python,/home/eyqs/Dropbox/Projects/2do/bat.py
+calliftrue: python,/home/eyqs/Dropbox/Projects/2do/bat.py,20,5
 callonstart:Yes
 
 summary:    Take a break!
