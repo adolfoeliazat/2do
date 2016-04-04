@@ -4,7 +4,7 @@
 import sys
 import time
 if __name__ == '__main__':
-    timefile = int(sys.argv[1]) # Name of the file to store times
+    timefile = sys.argv[1]      # Name of the file to store times
     modutime = int(sys.argv[2]) # Period of calls; 86400 is daily
     stoptime = int(sys.argv[3]) # Amount of time for user to stop
     currtime = time.time()
@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     # Print '0' if it's time to call
     flag = 0
-    with open(TIMEFILE, 'r') as f:
+    with open(timefile, 'r') as f:
         for line in f:
             if float(line.strip()) > calltime:
                 flag = 1
@@ -30,5 +30,5 @@ if __name__ == '__main__':
     # Wait before calling and writing
     if flag == 0:
         time.sleep(stoptime)
-        with open(TIMEFILE, 'a') as f:
+        with open(timefile, 'a') as f:
             f.write(str(currtime) + '\n')

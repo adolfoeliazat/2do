@@ -19,24 +19,20 @@ hints = ''
 
 # Parse DATAFILE to find the tasks to do
 def parse():
-    tasklist = []
+    tasklist = {}
     with open(DATAFILE) as f:
-        curr = {'summary':'', 'body':'', 'icon':'','execute':'',
-                'timeout':'', 'interval':'', 'priority':'',
-                'stoptime':'', 'calliftrue':'', 'callonstart':''}
         for line in f:
             if line.startswith('#'):
                 continue
-            if not line.strip():
-                tasklist.append(curr)
+            split = line.split(':')
+            if split[0].strip() == 'name':
                 curr = {'summary':'', 'body':'', 'icon':'','execute':'',
                         'timeout':'', 'interval':'', 'priority':'',
                         'stoptime':'', 'calliftrue':'', 'callonstart':''}
+                tasklist[split[1].strip()] = curr
             else:
-                split = line.split(':')
                 if len(split) > 1:
-                    curr[split[0]] = split[1].strip()
-        tasklist.append(curr)
+                    curr[split[0].strip()] = split[1].strip()
     return tasklist
 
 # Schedule the tasks to do
@@ -55,6 +51,7 @@ def schedule(interval, priority, task):
             return
     if task['execute']:         # Call the task
         call(task)
+
     notify(task)                # Notify the task
 
 # If user did not kill the checking script, call the task
@@ -88,7 +85,7 @@ if __name__ == '__main__':
     subprocess.Popen(['python', '/home/eyqs/Dropbox/Projects/2do/app.py',
                       str(os.getpid())])
     # Call some tasks immediately and others periodically
-    for task in tasklist:
+    for name,task in tasklist.items():
         if task['callonstart'] == 'Yes':
             delay = 0
         elif task['callonstart'] == 'Wait':

@@ -1,3 +1,4 @@
+name:       stack
 summary:    Keep that StackExchange streak!
 body:       Automatically opening all tabs in 300 seconds. Terminate by killing day.py.
 icon:       /home/eyqs/Dropbox/Projects/2do/yellow.gif
@@ -6,38 +7,28 @@ execute:    python,/home/eyqs/Dropbox/Projects/2do/web.py
 interval:   10800
 priority:   1
 stoptime:   300
-calliftrue: python,/home/eyqs/Dropbox/Projects/2do/day.py,.2do.dat,86400,300
+calliftrue: python,/home/eyqs/Dropbox/Projects/2do/day.py,.2do.log,86400,300
 callonstart:Wait
 
+name:       lowbat
 summary:    Low battery!
 body:       Battery below 20%, connect charger.
 icon:       /home/eyqs/Dropbox/Projects/2do/red.gif
 timeout:    10000
-execute:
 interval:   120
 priority:   2
-stoptime:
 calliftrue: python,/home/eyqs/Dropbox/Projects/2do/bat.py,20,5
 callonstart:Yes
 
-summary:    Take a break!
-body:       Rest your eyes for 5 minutes.
-icon:       /home/eyqs/Dropbox/Projects/2do/orange.gif
-timeout:    0
-execute:
+name:       break
+summary:	Take a break!
+body:		Rest your eyes for 5 minutes.
+icon:		/home/eyqs/Dropbox/Projects/2do/orange.gif
 interval:   1800
 priority:   3
-stoptime:
-calliftrue:
-callonstart:No
 
-summary:    New wallpaper!
-body:       You don't need a notification to notice it...
-icon:       /home/eyqs/Dropbox/Projects/2do/magenta.gif
-timeout:    5000
+name:       wallpaper
 execute:    feh,--bg-fill,--randomize,--no-fehbg,/home/eyqs/.config/awesome/2016solarized/wallpapers/*,shell=True
 interval:   600
 priority:   4
-stoptime:
-calliftrue:
 callonstart:Yes
