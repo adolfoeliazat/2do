@@ -1,11 +1,12 @@
 summary:    Keep that StackExchange streak!
 body:       Automatically opening all tabs in 300 seconds. Terminate by killing day.py.
 icon:       /home/eyqs/Dropbox/Projects/2do/yellow.gif
-timeout:    600000
+timeout:    300000
 execute:    python,/home/eyqs/Dropbox/Projects/2do/web.py
 interval:   10800
 priority:   1
-calliftrue:
+stoptime:   300
+calliftrue: python,/home/eyqs/Dropbox/Projects/2do/day.py,300
 callonstart:Wait
 
 summary:    Low battery!
@@ -15,6 +16,7 @@ timeout:    10000
 execute:    systemctl,suspend
 interval:   240
 priority:   2
+stoptime:
 calliftrue: python,/home/eyqs/Dropbox/Projects/2do/bat.py
 callonstart:Yes
 
@@ -25,6 +27,7 @@ timeout:    0
 execute:
 interval:   1800
 priority:   3
+stoptime:
 calliftrue:
 callonstart:No
 
@@ -35,5 +38,6 @@ timeout:    5000
 execute:    feh,--bg-fill,--randomize,--no-fehbg,/home/eyqs/.config/awesome/2016solarized/wallpapers/*,shell=True
 interval:   600
 priority:   4
+stoptime:
 calliftrue:
 callonstart:Yes
