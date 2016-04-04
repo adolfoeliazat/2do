@@ -3,25 +3,32 @@
 # Split up in order to be able to kill python ../day.py individually
 import sys
 import time
-TIMEFILE = '.2do.log'
 if __name__ == '__main__':
-    stoptime = int(sys.argv[1])
+    timefile = int(sys.argv[1]) # Name of the file to store times
+    modutime = int(sys.argv[2]) # Period of calls; 86400 is daily
+    stoptime = int(sys.argv[3]) # Amount of time for user to stop
     currtime = time.time()
-    calltime = currtime - currtime % 86400
-    try:            # Make sure that TIMEFILE exists
-        f = open(TIMEFILE, 'r')
+    calltime = currtime - currtime % modutime
+
+    # Make sure that timefile exists
+    try:
+        f = open(timefile, 'r')
         f.close()
     except:
-        f = open(TIMEFILE, 'w')
+        f = open(timefile, 'w')
         f.close()
-    flag = 0        # Print '0' if it's time to call
+
+    # Print '0' if it's time to call
+    flag = 0
     with open(TIMEFILE, 'r') as f:
         for line in f:
             if float(line.strip()) > calltime:
                 flag = 1
     print(flag)
     sys.stdout.flush()
-    if flag == 0:   # Wait before calling and writing
+
+    # Wait before calling and writing
+    if flag == 0:
         time.sleep(stoptime)
         with open(TIMEFILE, 'a') as f:
             f.write(str(currtime) + '\n')

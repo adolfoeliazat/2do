@@ -6,7 +6,7 @@ execute:    python,/home/eyqs/Dropbox/Projects/2do/web.py
 interval:   10800
 priority:   1
 stoptime:   300
-calliftrue: python,/home/eyqs/Dropbox/Projects/2do/day.py,300
+calliftrue: python,/home/eyqs/Dropbox/Projects/2do/day.py,.2do.dat,86400,300
 callonstart:Wait
 
 summary:    Low battery!
