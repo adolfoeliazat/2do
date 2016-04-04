@@ -19,7 +19,6 @@ app_name = '2do'
 pid = ''
 actions = ''
 hints = ''
-timeout = '0'       # No timeout, everything manually dismissed
 
 
 # Parse DATAFILE to find the tasks to do
@@ -27,16 +26,16 @@ def parse():
     tasklist = []
     with open(DATAFILE) as f:
         curr = {'summary':'', 'body':'', 'icon':'',
-                'execute':'', 'interval':'', 'priority':'',
-                'calliftrue':'', 'callonstart':''}
+                'execute':'', 'timeout':'', 'interval':'',
+                'priority':'', 'calliftrue':'', 'callonstart':''}
         for line in f:
             if line.startswith('#'):
                 continue
             if not line.strip():
                 tasklist.append(curr)
                 curr = {'summary':'', 'body':'', 'icon':'',
-                        'execute':'', 'interval':'', 'priority':'',
-                        'calliftrue':'', 'callonstart':''}
+                        'execute':'', 'timeout':'', 'interval':'',
+                        'priority':'', 'calliftrue':'', 'callonstart':''}
             else:
                 split = line.split(':')
                 if len(split) > 1:
@@ -45,13 +44,19 @@ def parse():
     return tasklist
 
 
-# Schedule a periodic task
+# Schedule the tasks to do
 def schedule(interval, priority, execute, calliftrue):
     scheduler.enter(interval, priority, lambda
         i=interval, p=priority, e=execute, c=calliftrue: schedule(i,p,e,c))
 
     # Call the task
     if task['execute']:
+        # Only if script prints '0'
+        if task['calliftrue']:
+            check = subprocess.Popen(task['calliftrue'],
+                                     stdout=subprocess.PIPE)
+            if check.stdout.readline() != b'0\n':
+                return
         exe = task['execute'].split(',')
         if exe[-1] == 'shell=True':
             subprocess.Popen(' '.join(exe[:-1]), shell=True)
@@ -61,7 +66,8 @@ def schedule(interval, priority, execute, calliftrue):
     # Display the right notifications
     summary = task['summary']
     body = task['body']
-    icon = iconpath + task['icon']
+    icon = task['icon']
+    timeout = task['timeout']
     subprocess.call(['dbus-send', '--session', '--dest=' + dest, path, method,
                      'string:' + app_name, 'uint32:' + pid, 'string:' + icon,
                      'string:'+summary,'string:'+body,'array:string:'+actions,
@@ -69,7 +75,7 @@ def schedule(interval, priority, execute, calliftrue):
 
 
 if __name__ == '__main__':
-    # Parse the tasklist, start the scheduler, create the appindicator
+    # Parse the tasklist, start the scheduler, and create the appindicator
     tasklist = parse()
     scheduler = sched.scheduler()
     subprocess.Popen(['python', '/home/eyqs/Dropbox/Projects/2do/app.py',

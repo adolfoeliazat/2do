@@ -1,6 +1,7 @@
 summary:    Keep that StackExchange streak!
 body:       Automatically opening all tabs in 300 seconds. Terminate by killing day.py.
-icon:       yellow.gif
+icon:       /home/eyqs/Dropbox/Projects/2do/yellow.gif
+timeout:    600000
 execute:    python,/home/eyqs/Dropbox/Projects/2do/web.py
 interval:   10800
 priority:   1
@@ -8,17 +9,19 @@ calliftrue:
 callonstart:Wait
 
 summary:    Low battery!
-body:       Battery below 10%, connect charger.
-icon:       red.gif
-execute:
-interval:   60
+body:       Battery below 15%, connect charger.
+icon:       /home/eyqs/Dropbox/Projects/2do/red.gif
+timeout:    10000
+execute:    systemctl,suspend
+interval:   240
 priority:   2
-calliftrue:
+calliftrue: python,/home/eyqs/Dropbox/Projects/2do/bat.py
 callonstart:Yes
 
 summary:    Take a break!
 body:       Rest your eyes for 5 minutes.
-icon:       orange.gif
+icon:       /home/eyqs/Dropbox/Projects/2do/orange.gif
+timeout:    0
 execute:
 interval:   1800
 priority:   3
@@ -27,7 +30,8 @@ callonstart:No
 
 summary:    New wallpaper!
 body:       You don't need a notification to notice it...
-icon:       magenta.gif
+icon:       /home/eyqs/Dropbox/Projects/2do/magenta.gif
+timeout:    5000
 execute:    feh,--bg-fill,--randomize,--no-fehbg,/home/eyqs/.config/awesome/2016solarized/wallpapers/*,shell=True
 interval:   600
 priority:   4
