@@ -1,0 +1,35 @@
+summary:    Keep that StackExchange streak!
+body:       Automatically opening all tabs in 300 seconds. Terminate by killing day.py.
+icon:       yellow.gif
+execute:    python,/home/eyqs/Dropbox/Projects/2do/web.py
+interval:   10800
+priority:   1
+calliftrue:
+callonstart:Wait
+
+summary:    Low battery!
+body:       Battery below 10%, connect charger.
+icon:       red.gif
+execute:
+interval:   60
+priority:   2
+calliftrue:
+callonstart:Yes
+
+summary:    Take a break!
+body:       Rest your eyes for 5 minutes.
+icon:       orange.gif
+execute:
+interval:   1800
+priority:   3
+calliftrue:
+callonstart:No
+
+summary:    New wallpaper!
+body:       You don't need a notification to notice it...
+icon:       magenta.gif
+execute:    feh,--bg-fill,--randomize,--no-fehbg,/home/eyqs/.config/awesome/2016solarized/wallpapers/*,shell=True
+interval:   600
+priority:   4
+calliftrue:
+callonstart:Yes
