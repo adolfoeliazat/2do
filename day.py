@@ -5,8 +5,9 @@ import sys
 import time
 if __name__ == '__main__':
     timefile = sys.argv[1]      # Name of the file to store times
-    modutime = int(sys.argv[2]) # Period of calls; 86400 is daily
-    stoptime = int(sys.argv[3]) # Amount of time for user to stop
+    taskname = sys.argv[2]      # Name of the task to be executed
+    modutime = int(sys.argv[3]) # Period of calls; 86400 is daily
+    stoptime = int(sys.argv[4]) # Amount of time for user to stop
     currtime = time.time()
     calltime = currtime - currtime % modutime
 
@@ -18,17 +19,28 @@ if __name__ == '__main__':
         f = open(timefile, 'w')
         f.close()
 
-    # Print '0' if it's time to call
-    flag = 0
+    # Read timefile and find taskname
+    flag = -1
+    contents = []
     with open(timefile, 'r') as f:
         for line in f:
-            if float(line.strip()) > calltime:
-                flag = 1
+            if line.split(':')[0] == taskname:
+                flag = 0
+                if float(line.split(':')[1]) > calltime:
+                    flag = 1
+                    contents.append(taskname + ':' + str(currtime + stoptime))
+            else:
+                contents.append(line)
+
+    # Add taskname if not found in timefile
+    if flag == -1:
+        contents.append(taskname + ':' + str(currtime + stoptime))
+        flag = 0
+
+    # Wait before calling and writing over timefile
     print(flag)
     sys.stdout.flush()
-
-    # Wait before calling and writing
     if flag == 0:
         time.sleep(stoptime)
-        with open(timefile, 'a') as f:
-            f.write(str(currtime) + '\n')
+        with open(timefile, 'w') as f:
+            f.write('\n'.join(contents))

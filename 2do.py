@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # Manage various desktop notifications of periodic tasks
-
 import os
 import time
 import sched
@@ -11,7 +10,6 @@ DATAFILE = '.2do.dat'
 dest = 'org.freedesktop.Notifications'
 path = '/org/freedesktop/Notifications'
 method = 'org.freedesktop.Notifications.Notify'
-iconpath = '/home/eyqs/Dropbox/Projects/2do/'
 app_name = '2do'
 pid = ''
 actions = ''
@@ -22,17 +20,14 @@ def parse():
     tasklist = {}
     with open(DATAFILE) as f:
         for line in f:
-            if line.startswith('#'):
-                continue
             split = line.split(':')
             if split[0].strip() == 'name':
                 curr = {'summary':'', 'body':'', 'icon':'','execute':'',
                         'timeout':'', 'interval':'', 'priority':'',
                         'stoptime':'', 'calliftrue':'', 'callonstart':''}
                 tasklist[split[1].strip()] = curr
-            else:
-                if len(split) > 1:
-                    curr[split[0].strip()] = split[1].strip()
+            elif len(split) > 1:
+                curr[split[0].strip()] = split[1].strip()
     return tasklist
 
 # Schedule the tasks to do
@@ -45,14 +40,12 @@ def schedule(interval, priority, task):
         if check.stdout.readline() != b'0\n':
             return
         if task['stoptime']:    # Wait for stoptime to allow user to stop
-            scheduler.enter(int(task['stoptime']), 1,
+            scheduler.enter(int(task['stoptime']), int(task['priority']),
                 lambda c=check, t=task: stillalive(c,t))
             notify(task)
             return
-    if task['execute']:         # Call the task
-        call(task)
-
-    notify(task)                # Notify the task
+    call(task)
+    notify(task)
 
 # If user did not kill the checking script, call the task
 def stillalive(check, task):
@@ -61,11 +54,12 @@ def stillalive(check, task):
 
 # Do the task to do
 def call(task):
-    exe = task['execute'].split(',')
-    if exe[-1] == 'shell=True':
-        subprocess.Popen(' '.join(exe[:-1]), shell=True)
-    else:
-        subprocess.Popen(exe)
+    if task['execute']:
+        exe = task['execute'].split(',')
+        if exe[-1] == 'shell=True':
+            subprocess.Popen(' '.join(exe[:-1]), shell=True)
+        else:
+            subprocess.Popen(exe)
 
 # Notify the task to do
 def notify(task):
@@ -85,11 +79,11 @@ if __name__ == '__main__':
     subprocess.Popen(['python', '/home/eyqs/Dropbox/Projects/2do/app.py',
                       str(os.getpid())])
     # Call some tasks immediately and others periodically
-    for name,task in tasklist.items():
+    for name, task in tasklist.items():
         if task['callonstart'] == 'Yes':
             delay = 0
         elif task['callonstart'] == 'Wait':
-            delay = 10
+            delay = 30
         else:
             delay = int(task['interval'])
         scheduler.enter(delay, int(task['priority']), lambda
