@@ -1,43 +1,43 @@
 name:       stack
 summary:    Keep that StackExchange streak!
 body:       Automatically opening all tabs in 300 seconds. Terminate by killing day.py.
-icon:       /home/eyqs/Dropbox/Projects/2do/yellow.gif
+icon:       $2DOPATH/yellow.gif
 timeout:    300000
-execute:    python,/home/eyqs/Dropbox/Projects/2do/web.py
+execute:    python $2DOPATH/web.py
 interval:   10800
 priority:   1
 stoptime:   300
-calliftrue: python,/home/eyqs/Dropbox/Projects/2do/day.py,.2do.log,stack,86400,300
+calliftrue: python $2DOPATH/day.py $2DOPATH/.2do.log stack 86400 300
 callonstart:Wait
 
 name:       lowbat
 summary:    Low battery!
 body:       Battery below 20%, connect charger.
-icon:       /home/eyqs/Dropbox/Projects/2do/red.gif
+icon:       $2DOPATH/red.gif
 timeout:    10000
 interval:   120
 priority:   2
-calliftrue: python,/home/eyqs/Dropbox/Projects/2do/bat.py,20,5
+calliftrue: python $2DOPATH/bat.py 20 5
 callonstart:Yes
 
 name:       temp
 summary:    High temperature!
 body:       Internal sensors above 84 degrees, do something.
-icon:       /home/eyqs/Dropbox/Projects/2do/red.gif
+icon:       $2DOPATH/red.gif
 timeout:    10000
 interval:   30
 priority:   2
-calliftrue: python,/home/eyqs/Dropbox/Projects/2do/tmp.py,84
+calliftrue: python $2DOPATH/tmp.py 84
 
 name:       break
 summary:	Take a break!
 body:		Rest your eyes for 5 minutes.
-icon:		/home/eyqs/Dropbox/Projects/2do/orange.gif
+icon:		$2DOPATH/orange.gif
 interval:   1800
 priority:   3
 
 name:       wallpaper
-execute:    feh,--bg-fill,--randomize,--no-fehbg,/home/eyqs/.config/awesome/2016solarized/wallpapers/*,shell=True
+execute:    feh --bg-fill --randomize --no-fehbg /home/eyqs/.config/awesome/2016solarized/wallpapers/* shell=True
 interval:   600
 priority:   4
 callonstart:Yes
