@@ -6,9 +6,9 @@ if __name__ == '__main__':
     status = subprocess.Popen(['acpi'],
         stdout=subprocess.PIPE).communicate()[0].decode('UTF-8').split()
     # ['Battery', '0:', 'Discharging,', '13%,']
-    if status[2] == 'Discharging,' and int(status[3][:-2]) < int(sys.argv[1]):
+    if status[2] == 'Discharging,' and float(status[3][:-2]) < float(sys.argv[1]):
         print(0)
-        if int(status[3][:-2]) < int(sys.argv[2]):
+        if float(status[3][:-2]) < float(sys.argv[2]):
             subprocess.call(['systemctl', 'suspend'])
     else:
         print(1)

@@ -20,6 +20,15 @@ priority:   2
 calliftrue: python,/home/eyqs/Dropbox/Projects/2do/bat.py,20,5
 callonstart:Yes
 
+name:       temp
+summary:    High temperature!
+body:       Internal sensors above 84 degrees, do something.
+icon:       /home/eyqs/Dropbox/Projects/2do/red.gif
+timeout:    10000
+interval:   30
+priority:   2
+calliftrue: python,/home/eyqs/Dropbox/Projects/2do/tmp.py,84
+
 name:       break
 summary:	Take a break!
 body:		Rest your eyes for 5 minutes.
