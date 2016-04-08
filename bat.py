@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-2do v1.0.0
+2do v1.0.1
 Copyright © 2016 Eugene Y. Q. Shen.
 
 2do is free software: you can redistribute it and/or

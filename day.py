@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-2do v1.0.0
+2do v1.0.1
 Copyright © 2016 Eugene Y. Q. Shen.
 
 2do is free software: you can redistribute it and/or
@@ -41,11 +41,13 @@ if __name__ == '__main__':
         for line in f:
             if line.split(':')[0] == taskname:
                 flag = 0
-                if float(line.split(':')[1]) > calltime:
-                    flag = 1
+                if float(line.split(':')[1]) < calltime:
                     contents.append(taskname + ':' + str(currtime + stoptime))
+                else:
+                    flag = 1
+                    contents.append(line.strip())
             else:
-                contents.append(line)
+                contents.append(line.strip())
 
     # Add taskname if not found in timefile
     if flag == -1:
