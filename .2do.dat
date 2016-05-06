@@ -14,7 +14,7 @@ name:       lowbat
 summary:    Low battery!
 body:       Battery below 20%, connect charger.
 icon:       $2DOPATH/red.gif
-timeout:    10000
+timeout:    30000
 interval:   120
 priority:   2
 calliftrue: python $2DOPATH/bat.py 20 5

@@ -44,7 +44,7 @@ def make_menus():
 if __name__ == '__main__':
     pid = int(sys.argv[1])
     ap = indicator.Indicator.new('2do_indicator',
-                                 '/home/eyqs/Dropbox/Projects/2do/orange.gif',
+                                 '/home/eyqs/Dropbox/Projects/2do/icon.gif',
                                  indicator.IndicatorCategory.SYSTEM_SERVICES)
     ap.set_status(indicator.IndicatorStatus.ACTIVE)
     ap.set_menu(make_menus())
