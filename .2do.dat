@@ -30,9 +30,9 @@ priority:   2
 calliftrue: python $2DOPATH/tmp.py 84
 
 name:       break
-summary:	Take a break!
-body:		Rest your eyes for 5 minutes.
-icon:		$2DOPATH/orange.gif
+summary:    Take a break!
+body:       Rest your eyes for 5 minutes.
+icon:       $2DOPATH/orange.gif
 interval:   1800
 priority:   3
 

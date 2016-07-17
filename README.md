@@ -58,7 +58,7 @@ is run after 2do loads based on the time specified in interval.
 
 ## License
 
-Copyright © 2016 Eugene Y. Q. Shen.
+Copyright &copy; 2016 Eugene Y. Q. Shen.
 
 2do is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License

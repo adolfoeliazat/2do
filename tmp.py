@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 2do v1.0.1
-Copyright © 2016 Eugene Y. Q. Shen.
+Copyright (c) 2016 Eugene Y. Q. Shen.
 
 2do is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     sensors = subprocess.Popen(['sensors'],
         stdout=subprocess.PIPE).communicate()[0].decode('UTF-8').split('\n')
     status = next(x.split() for x in sensors if x.startswith('Physical id 0'))
-    # ['Physical', 'id', '0:', '+61.0°C', '(high', '=', '+84.0°C,']
+    # ['Physical', 'id', '0:', '+61.0 C', '(high', '=', '+84.0 C,']
     if float(status[3][:-2]) > float(sys.argv[1]):
         print(0)
     else:
